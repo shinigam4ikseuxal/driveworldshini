@@ -46,6 +46,7 @@ local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local workspace = game:GetService("Workspace")
 
+-- Функция для очистки Workspace
 local function clearWorkspace()
     for _, obj in pairs(workspace:GetChildren()) do
         if obj:IsA("Model") and obj ~= Player.Character and not obj:FindFirstChild("Humanoid") and obj.Name ~= "Jobs" and obj.Name ~= "Cars" then
@@ -55,36 +56,45 @@ local function clearWorkspace()
     task.wait(1)
 end
 
+-- Автоматизация работы
 local function jobAutomation()
     local success, err = pcall(function()
+        -- Начало задания
         local args = { workspace.Jobs.Trucking, workspace.Jobs.Trucking.StartPoints.Dump }
         replicatedStorage.Systems.Jobs.StartJob:InvokeServer(unpack(args))
-        task.wait(1) -- Allow job to start
+        
+        -- Ожидание 5-10 секунд перед телепортацией, чтобы дать время начать задание
+        task.wait(40)  -- Время можно настроить по ситуации
+        
+        -- Найти CompletionRegion
         local completionRegion = workspace:FindFirstChild("CompletionRegion") and workspace.CompletionRegion.Primary
         if not completionRegion then
-            warn("CompletionRegion not found!")
+            warn("CompletionRegion не найден!")
             return
         end
-        local destination = completionRegion.CFrame * CFrame.new(0, 5, 0)
 
+        -- Определение позиции для телепортации
+        local destination = completionRegion.CFrame * CFrame.new(0, 5, 0)
+        
+        -- Поиск автомобиля игрока
         for _, v in pairs(workspace.Cars:GetDescendants()) do
             if v.Name == "Owner" and v.Value == Player then
                 local carParent = v.Parent
                 local trailer = carParent:FindFirstChild("Trailer")
 
                 -- Телепортация автомобиля и трейлера
-                task.wait(35) -- Ждем 35 секунд
                 carParent:SetPrimaryPartCFrame(destination)
                 if trailer then
                     trailer:SetPrimaryPartCFrame(destination)
                 end
-                
-                -- Цикл для телепортации каждые 35 секунд
+
+                -- Проверка нахождения в CompletionRegion
                 while workspace:FindFirstChild("CompletionRegion") do
                     carParent:SetPrimaryPartCFrame(destination)
                     if trailer then
                         trailer:SetPrimaryPartCFrame(destination)
                     end
+                    task.wait(0.001)
                 end
 
                 -- Сброс PlatformStand для персонажа
@@ -99,11 +109,13 @@ local function jobAutomation()
     end)
     
     if not success then
-        warn("Error: " .. tostring(err))
+        warn("Ошибка: " .. tostring(err))
     end
+
     task.wait(1)
-    clearWorkspace()
-    jobAutomation()
+    clearWorkspace()  -- Очистка пространства после задания
+    jobAutomation()  -- Повторное выполнение задания
 end
 
+-- Запуск автоматизации работы
 jobAutomation()
