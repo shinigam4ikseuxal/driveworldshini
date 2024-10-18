@@ -1,0 +1,109 @@
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local TitleLabel = Instance.new("TextLabel")
+local StatusLabel = Instance.new("TextLabel")
+local Player = game.Players.LocalPlayer
+local VirtualUser = game:GetService("VirtualUser")
+
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+MainFrame.Position = UDim2.new(0.7, 0, 0.1, 0)
+MainFrame.Size = UDim2.new(0, 370, 0, 107)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+TitleLabel.Parent = MainFrame
+TitleLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+TitleLabel.Size = UDim2.new(0, 370, 0, 52)
+TitleLabel.Font = Enum.Font.SourceSansSemibold
+TitleLabel.Text = "Anti AFK Script"
+TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+TitleLabel.TextSize = 22
+
+StatusLabel.Parent = MainFrame
+StatusLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+StatusLabel.Position = UDim2.new(0, 0, 0.5, 0)
+StatusLabel.Size = UDim2.new(0, 370, 0, 44)
+StatusLabel.Font = Enum.Font.ArialBold
+StatusLabel.Text = "Status: Active"
+StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+StatusLabel.TextSize = 20
+
+Player.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+    StatusLabel.Text = "Roblox tried to kick you, but we didn't let them!"
+    wait(2)
+    StatusLabel.Text = "Status: Active"
+end)
+
+-- Optimized Job Automation Script
+local character = Player.Character or Player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local workspace = game:GetService("Workspace")
+
+local function clearWorkspace()
+    for _, obj in pairs(workspace:GetChildren()) do
+        if obj:IsA("Model") and obj ~= Player.Character and not obj:FindFirstChild("Humanoid") and obj.Name ~= "Jobs" and obj.Name ~= "Cars" then
+            obj:Destroy()
+        end
+    end
+    task.wait(1)
+end
+
+local function jobAutomation()
+    local success, err = pcall(function()
+        local args = { workspace.Jobs.Trucking, workspace.Jobs.Trucking.StartPoints.Dump }
+        replicatedStorage.Systems.Jobs.StartJob:InvokeServer(unpack(args))
+        task.wait(1) -- Allow job to start
+        local completionRegion = workspace:FindFirstChild("CompletionRegion") and workspace.CompletionRegion.Primary
+        if not completionRegion then
+            warn("CompletionRegion not found!")
+            return
+        end
+        local destination = completionRegion.CFrame * CFrame.new(0, 5, 0)
+
+        for _, v in pairs(workspace.Cars:GetDescendants()) do
+            if v.Name == "Owner" and v.Value == Player then
+                local carParent = v.Parent
+                local trailer = carParent:FindFirstChild("Trailer")
+
+                -- Телепортация автомобиля и трейлера
+                task.wait(35) -- Ждем 35 секунд
+                carParent:SetPrimaryPartCFrame(destination)
+                if trailer then
+                    trailer:SetPrimaryPartCFrame(destination)
+                end
+                
+                -- Цикл для телепортации каждые 35 секунд
+                while workspace:FindFirstChild("CompletionRegion") do
+                    carParent:SetPrimaryPartCFrame(destination)
+                    if trailer then
+                        trailer:SetPrimaryPartCFrame(destination)
+                    end
+                end
+
+                -- Сброс PlatformStand для персонажа
+                local humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.PlatformStand = false
+                end
+
+                break
+            end
+        end
+    end)
+    
+    if not success then
+        warn("Error: " .. tostring(err))
+    end
+    task.wait(1)
+    clearWorkspace()
+    jobAutomation()
+end
+
+jobAutomation()
