@@ -28,25 +28,25 @@ StatusLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 StatusLabel.Position = UDim2.new(0, 0, 0.5, 0)
 StatusLabel.Size = UDim2.new(0, 370, 0, 44)
 StatusLabel.Font = Enum.Font.ArialBold
-StatusLabel.Text = "Status: Active"
+StatusLabel.Text = "РЎС‚Р°С‚СѓСЃ: РђРєС‚РёРІРµРЅ"
 StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
 StatusLabel.TextSize = 20
 
 Player.Idled:Connect(function()
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new())
-    StatusLabel.Text = "Roblox tried to kick you, but we didn't let them!"
+    StatusLabel.Text = "Roblox РїРѕРїС‹С‚Р°Р»СЃСЏ РІР°СЃ РІС‹РіРЅР°С‚СЊ, РЅРѕ РјС‹ РЅРµ РїРѕР·РІРѕР»РёР»Рё :D"
     wait(2)
-    StatusLabel.Text = "Status: Active"
+    StatusLabel.Text = "РЎС‚Р°С‚СѓСЃ: РђРєС‚РёРІРµРЅ"
 end)
 
--- Optimized Job Automation Script
+-- РћРїС‚РёРјРёР·РёСЂРѕРІР°РЅРЅС‹Р№ РЎРєСЂРёРїС‚ РђРІС‚РѕРјР°С‚РёР·Р°С†РёРё Р Р°Р±РѕС‚С‹
 local character = Player.Character or Player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
 
--- Функция для очистки Workspace
 local function clearWorkspace()
     for _, obj in pairs(workspace:GetChildren()) do
         if obj:IsA("Model") and obj ~= Player.Character and not obj:FindFirstChild("Humanoid") and obj.Name ~= "Jobs" and obj.Name ~= "Cars" then
@@ -56,48 +56,66 @@ local function clearWorkspace()
     task.wait(1)
 end
 
--- Автоматизация работы
-local function jobAutomation()
+local function jobAutomation() 
     local success, err = pcall(function()
-        -- Начало задания
         local args = { workspace.Jobs.Trucking, workspace.Jobs.Trucking.StartPoints.Dump }
         replicatedStorage.Systems.Jobs.StartJob:InvokeServer(unpack(args))
-        
-        -- Ожидание 5-10 секунд перед телепортацией, чтобы дать время начать задание
-        task.wait(40)  -- Время можно настроить по ситуации
-        
-        -- Найти CompletionRegion
+        task.wait(1) -- РџРѕР·РІРѕР»РёС‚СЊ СЂР°Р±РѕС‚Рµ РЅР°С‡Р°С‚СЊСЃСЏ
         local completionRegion = workspace:FindFirstChild("CompletionRegion") and workspace.CompletionRegion.Primary
         if not completionRegion then
-            warn("CompletionRegion не найден!")
+            warn("CompletionRegion РЅРµ РЅР°Р№РґРµРЅ!")
             return
         end
 
-        -- Определение позиции для телепортации
         local destination = completionRegion.CFrame * CFrame.new(0, 5, 0)
-        
-        -- Поиск автомобиля игрока
         for _, v in pairs(workspace.Cars:GetDescendants()) do
             if v.Name == "Owner" and v.Value == Player then
                 local carParent = v.Parent
                 local trailer = carParent:FindFirstChild("Trailer")
+                local startPosition = carParent:GetPrimaryPartCFrame()
 
-                -- Телепортация автомобиля и трейлера
-                carParent:SetPrimaryPartCFrame(destination)
+                local liftTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+                local liftTweenValue = Instance.new("CFrameValue")
+                liftTweenValue.Value = startPosition
+                liftTweenValue.Changed:Connect(function()
+                    carParent:SetPrimaryPartCFrame(liftTweenValue.Value)
+                    if trailer then
+                        trailer:SetPrimaryPartCFrame(liftTweenValue.Value)
+                    end
+                end)
+
+                local liftTween = TweenService:Create(liftTweenValue, liftTweenInfo, { Value = startPosition * CFrame.new(0, 360, 0) })
+                liftTween:Play()
+                liftTween.Completed:Wait()
+
+                local distance = (destination.Position - (startPosition.Position + Vector3.new(0, 400, 0))).magnitude
+                local moveTweenInfo = TweenInfo.new(distance / 380, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+                local moveTweenValue = Instance.new("CFrameValue")
+                moveTweenValue.Value = startPosition * CFrame.new(0, 360, 0)
+                moveTweenValue.Changed:Connect(function()
+                    carParent:SetPrimaryPartCFrame(moveTweenValue.Value)
+                    if trailer then
+                        trailer:SetPrimaryPartCFrame(moveTweenValue.Value)
+                    end
+                end)
+
+                local moveTween = TweenService:Create(moveTweenValue, moveTweenInfo, { Value = destination * CFrame.new(0, 360, 0) })
+                moveTween:Play()
+                moveTween.Completed:Wait()
+
+                carParent:SetPrimaryPartCFrame(destination * CFrame.new(0, 5, 0))
                 if trailer then
-                    trailer:SetPrimaryPartCFrame(destination)
+                    trailer:SetPrimaryPartCFrame(destination * CFrame.new(0, 5, 0))
                 end
 
-                -- Проверка нахождения в CompletionRegion
                 while workspace:FindFirstChild("CompletionRegion") do
-                    carParent:SetPrimaryPartCFrame(destination)
+                    carParent:SetPrimaryPartCFrame(destination * CFrame.new(0, 5, 0))
                     if trailer then
-                        trailer:SetPrimaryPartCFrame(destination)
+                        trailer:SetPrimaryPartCFrame(destination * CFrame.new(0, 5, 0))
                     end
                     task.wait(0.001)
                 end
 
-                -- Сброс PlatformStand для персонажа
                 local humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
                 if humanoid then
                     humanoid.PlatformStand = false
@@ -109,13 +127,11 @@ local function jobAutomation()
     end)
     
     if not success then
-        warn("Ошибка: " .. tostring(err))
+        warn("РћС€РёР±РєР°: " .. tostring(err))
     end
-
     task.wait(1)
-    clearWorkspace()  -- Очистка пространства после задания
-    jobAutomation()  -- Повторное выполнение задания
+    clearWorkspace()
+    jobAutomation()
 end
 
--- Запуск автоматизации работы
 jobAutomation()
