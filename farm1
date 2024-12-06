@@ -87,9 +87,10 @@ local function jobAutomation()
                 local liftTween = TweenService:Create(liftTweenValue, liftTweenInfo, { Value = startPosition * CFrame.new(0, 360, 0) })
                 liftTween:Play()
                 liftTween.Completed:Wait()
-
+                local randomDivisor = math.random(90, 110)
                 local distance = (destination.Position - (startPosition.Position + Vector3.new(0, 400, 0))).magnitude
-                local moveTweenInfo = TweenInfo.new(distance / 100, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+
+                local moveTweenInfo = TweenInfo.new(distance / randomDivisor, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
                 local moveTweenValue = Instance.new("CFrameValue")
                 moveTweenValue.Value = startPosition * CFrame.new(0, 360, 0)
                 moveTweenValue.Changed:Connect(function()
