@@ -1,0 +1,137 @@
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local TitleLabel = Instance.new("TextLabel")
+local StatusLabel = Instance.new("TextLabel")
+local Player = game.Players.LocalPlayer
+local VirtualUser = game:GetService("VirtualUser")
+
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+MainFrame.Position = UDim2.new(0.7, 0, 0.1, 0)
+MainFrame.Size = UDim2.new(0, 370, 0, 107)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+TitleLabel.Parent = MainFrame
+TitleLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+TitleLabel.Size = UDim2.new(0, 370, 0, 52)
+TitleLabel.Font = Enum.Font.SourceSansSemibold
+TitleLabel.Text = "Anti AFK Script"
+TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+TitleLabel.TextSize = 22
+
+StatusLabel.Parent = MainFrame
+StatusLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+StatusLabel.Position = UDim2.new(0, 0, 0.5, 0)
+StatusLabel.Size = UDim2.new(0, 370, 0, 44)
+StatusLabel.Font = Enum.Font.ArialBold
+StatusLabel.Text = "РЎС‚Р°С‚СѓСЃ: РђРєС‚РёРІРµРЅ"
+StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+StatusLabel.TextSize = 20
+
+Player.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+    StatusLabel.Text = "Roblox РїРѕРїС‹С‚Р°Р»СЃСЏ РІР°СЃ РІС‹РіРЅР°С‚СЊ, РЅРѕ РјС‹ РЅРµ РїРѕР·РІРѕР»РёР»Рё :D"
+    wait(2)
+    StatusLabel.Text = "РЎС‚Р°С‚СѓСЃ: РђРєС‚РёРІРµРЅ"
+end)
+
+-- РћРїС‚РёРјРёР·РёСЂРѕРІР°РЅРЅС‹Р№ РЎРєСЂРёРїС‚ РђРІС‚РѕРјР°С‚РёР·Р°С†РёРё Р Р°Р±РѕС‚С‹
+local character = Player.Character or Player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+
+local function clearWorkspace()
+    for _, obj in pairs(workspace:GetChildren()) do
+        if obj:IsA("Model") and obj ~= Player.Character and not obj:FindFirstChild("Humanoid") and obj.Name ~= "Jobs" and obj.Name ~= "Cars" then
+            obj:Destroy()
+        end
+    end
+    task.wait(1)
+end
+
+local function jobAutomation() 
+    local success, err = pcall(function()
+        local args = { workspace.Jobs.Trucking, workspace.Jobs.Trucking.StartPoints.Dump }
+        replicatedStorage.Systems.Jobs.StartJob:InvokeServer(unpack(args))
+        task.wait(1) -- РџРѕР·РІРѕР»РёС‚СЊ СЂР°Р±РѕС‚Рµ РЅР°С‡Р°С‚СЊСЃСЏ
+        local completionRegion = workspace:FindFirstChild("CompletionRegion") and workspace.CompletionRegion.Primary
+        if not completionRegion then
+            warn("CompletionRegion РЅРµ РЅР°Р№РґРµРЅ!")
+            return
+        end
+
+        local destination = completionRegion.CFrame * CFrame.new(0, 5, 0)
+        for _, v in pairs(workspace.Cars:GetDescendants()) do
+            if v.Name == "Owner" and v.Value == Player then
+                local carParent = v.Parent
+                local trailer = carParent:FindFirstChild("Trailer")
+                local startPosition = carParent:GetPrimaryPartCFrame()
+
+                local liftTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+                local liftTweenValue = Instance.new("CFrameValue")
+                liftTweenValue.Value = startPosition
+                liftTweenValue.Changed:Connect(function()
+                    carParent:SetPrimaryPartCFrame(liftTweenValue.Value)
+                    if trailer then
+                        trailer:SetPrimaryPartCFrame(liftTweenValue.Value)
+                    end
+                end)
+
+                local liftTween = TweenService:Create(liftTweenValue, liftTweenInfo, { Value = startPosition * CFrame.new(0, 360, 0) })
+                liftTween:Play()
+                liftTween.Completed:Wait()
+
+                local distance = (destination.Position - (startPosition.Position + Vector3.new(0, 400, 0))).magnitude
+                local moveTweenInfo = TweenInfo.new(distance / 180, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+                local moveTweenValue = Instance.new("CFrameValue")
+                moveTweenValue.Value = startPosition * CFrame.new(0, 360, 0)
+                moveTweenValue.Changed:Connect(function()
+                    carParent:SetPrimaryPartCFrame(moveTweenValue.Value)
+                    if trailer then
+                        trailer:SetPrimaryPartCFrame(moveTweenValue.Value)
+                    end
+                end)
+
+                local moveTween = TweenService:Create(moveTweenValue, moveTweenInfo, { Value = destination * CFrame.new(0, 360, 0) })
+                moveTween:Play()
+                moveTween.Completed:Wait()
+
+                carParent:SetPrimaryPartCFrame(destination * CFrame.new(0, 5, 0))
+                if trailer then
+                    trailer:SetPrimaryPartCFrame(destination * CFrame.new(0, 5, 0))
+                end
+
+                while workspace:FindFirstChild("CompletionRegion") do
+                    carParent:SetPrimaryPartCFrame(destination * CFrame.new(0, 5, 0))
+                    if trailer then
+                        trailer:SetPrimaryPartCFrame(destination * CFrame.new(0, 5, 0))
+                    end
+                    task.wait(0.001)
+                end
+
+                local humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.PlatformStand = false
+                end
+
+                break
+            end
+        end
+    end)
+    
+    if not success then
+        warn("РћС€РёР±РєР°: " .. tostring(err))
+    end
+    task.wait(1)
+    clearWorkspace()
+    jobAutomation()
+end
+
+jobAutomation()
