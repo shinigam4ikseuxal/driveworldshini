@@ -35,12 +35,12 @@ StatusLabel.TextSize = 20
 Player.Idled:Connect(function()
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new())
-    StatusLabel.Text = "Roblox попытался вас выгнать, но мы не позволили :D"
+    StatusLabel.Text = "Roblox tried to kick you out, but we didn't let it happen :D"
     wait(2)
-    StatusLabel.Text = "Статус: Активен"
+    StatusLabel.Text = "Status: Active"
 end)
 
--- Оптимизированный скрипт автоматизации работы
+-- Optimized work automation script
 local character = Player.Character or Player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local replicatedStorage = game:GetService("ReplicatedStorage")
@@ -60,10 +60,10 @@ local function jobAutomation()
     local success, err = pcall(function()
         local args = { workspace.Jobs.Trucking, workspace.Jobs.Trucking.StartPoints.Dump }
         replicatedStorage.Systems.Jobs.StartJob:InvokeServer(unpack(args))
-        task.wait(1) -- Позволить работе начаться
+        task.wait(1) -- Allow work to begin
         local completionRegion = workspace:FindFirstChild("CompletionRegion") and workspace.CompletionRegion.Primary
         if not completionRegion then
-            warn("CompletionRegion РЅРµ РЅР°Р№РґРµРЅ!")
+            warn("CompletionRegion Not Found!")
             return
         end
 
@@ -87,10 +87,10 @@ local function jobAutomation()
                 local liftTween = TweenService:Create(liftTweenValue, liftTweenInfo, { Value = startPosition * CFrame.new(0, 360, 0) })
                 liftTween:Play()
                 liftTween.Completed:Wait()
+
                 local randomDivisor = math.random(100, 120)
                 local distance = (destination.Position - (startPosition.Position + Vector3.new(0, 400, 0))).magnitude
-
-                local moveTweenInfo = TweenInfo.new(distance / randomDivisor, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+                local moveTweenInfo = TweenInfo.new(distance / 380, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
                 local moveTweenValue = Instance.new("CFrameValue")
                 moveTweenValue.Value = startPosition * CFrame.new(0, 360, 0)
                 moveTweenValue.Changed:Connect(function()
@@ -128,7 +128,7 @@ local function jobAutomation()
     end)
     
     if not success then
-        warn("Ошибка: " .. tostring(err))
+        warn("Error" .. tostring(err))
     end
     task.wait(1)
     clearWorkspace()
