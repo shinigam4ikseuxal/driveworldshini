@@ -35,12 +35,12 @@ StatusLabel.TextSize = 20
 Player.Idled:Connect(function()
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new())
-    StatusLabel.Text = "Roblox РїРѕРїС‹С‚Р°Р»СЃСЏ РІР°СЃ РІС‹РіРЅР°С‚СЊ, РЅРѕ РјС‹ РЅРµ РїРѕР·РІРѕР»РёР»Рё :D"
+    StatusLabel.Text = "Roblox попытался вас выгнать, но мы не позволили :D"
     wait(2)
-    StatusLabel.Text = "РЎС‚Р°С‚СѓСЃ: РђРєС‚РёРІРµРЅ"
+    StatusLabel.Text = "Статус: Активен"
 end)
 
--- РћРїС‚РёРјРёР·РёСЂРѕРІР°РЅРЅС‹Р№ РЎРєСЂРёРїС‚ РђРІС‚РѕРјР°С‚РёР·Р°С†РёРё Р Р°Р±РѕС‚С‹
+-- Оптимизированный скрипт автоматизации работы
 local character = Player.Character or Player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local replicatedStorage = game:GetService("ReplicatedStorage")
@@ -60,7 +60,7 @@ local function jobAutomation()
     local success, err = pcall(function()
         local args = { workspace.Jobs.Trucking, workspace.Jobs.Trucking.StartPoints.Dump }
         replicatedStorage.Systems.Jobs.StartJob:InvokeServer(unpack(args))
-        task.wait(1) -- РџРѕР·РІРѕР»РёС‚СЊ СЂР°Р±РѕС‚Рµ РЅР°С‡Р°С‚СЊСЃСЏ
+        task.wait(1) -- Позволить работе начаться
         local completionRegion = workspace:FindFirstChild("CompletionRegion") and workspace.CompletionRegion.Primary
         if not completionRegion then
             warn("CompletionRegion РЅРµ РЅР°Р№РґРµРЅ!")
@@ -87,7 +87,7 @@ local function jobAutomation()
                 local liftTween = TweenService:Create(liftTweenValue, liftTweenInfo, { Value = startPosition * CFrame.new(0, 360, 0) })
                 liftTween:Play()
                 liftTween.Completed:Wait()
-                local randomDivisor = math.random(90, 110)
+                local randomDivisor = math.random(100, 120)
                 local distance = (destination.Position - (startPosition.Position + Vector3.new(0, 400, 0))).magnitude
 
                 local moveTweenInfo = TweenInfo.new(distance / randomDivisor, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
@@ -128,7 +128,7 @@ local function jobAutomation()
     end)
     
     if not success then
-        warn("РћС€РёР±РєР°: " .. tostring(err))
+        warn("Ошибка: " .. tostring(err))
     end
     task.wait(1)
     clearWorkspace()
