@@ -397,8 +397,8 @@ pcall(function()
       elseif getfenv().methodt == "Tweening" then
          for i,v in pairs(game:GetService("Workspace").Cars:GetDescendants()) do
             if v.Name == "Owner" and v.Value == game.Players.LocalPlayer then
-               v.Parent:PivotTo(v.Parent.PrimaryPart.CFrame+Vector3.new(0,500,0))
-               v.Parent.Trailer:PivotTo(v.Parent.PrimaryPart.CFrame*CFrame.new(0,500,100))
+               v.Parent:PivotTo(v.Parent.PrimaryPart.CFrame+Vector3.new(0,350,0))
+               v.Parent.Trailer:PivotTo(v.Parent.PrimaryPart.CFrame*CFrame.new(0,350,100))
          local TweenService = game:GetService("TweenService")
          local TweenInfoToUse = TweenInfo.new(dist/400, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false, 0)
          
@@ -410,7 +410,7 @@ pcall(function()
       v.Parent.PrimaryPart.Velocity = Vector3.new(0,0,0)
          end)
                   
-         local OnTween = TweenService:Create(TweenValue, TweenInfoToUse, {Value=getZone().PrimaryPart.CFrame*CFrame.new(0,500,100)})
+         local OnTween = TweenService:Create(TweenValue, TweenInfoToUse, {Value=getZone().PrimaryPart.CFrame*CFrame.new(0,350,100)})
          OnTween:Play()
           OnTween.Completed:Wait()
          end
@@ -424,8 +424,8 @@ pcall(function()
          elseif getfenv().methodt == "Tweening" then
             for i,v in pairs(game:GetService("Workspace").Cars:GetDescendants()) do
                if v.Name == "Owner" and v.Value == game.Players.LocalPlayer then
-                  v.Parent:PivotTo(v.Parent.PrimaryPart.CFrame+Vector3.new(0,500,0))
-                  v.Parent.Trailer:PivotTo(v.Parent.PrimaryPart.CFrame*CFrame.new(0,500,100))
+                  v.Parent:PivotTo(v.Parent.PrimaryPart.CFrame+Vector3.new(0,350,0))
+                  v.Parent.Trailer:PivotTo(v.Parent.PrimaryPart.CFrame*CFrame.new(0,350,100))
                   local TweenService = game:GetService("TweenService")
                   local TweenInfoToUse = TweenInfo.new(7, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false, 0)
                   
