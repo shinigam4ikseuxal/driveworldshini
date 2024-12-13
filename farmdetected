@@ -424,7 +424,7 @@ pcall(function()
          print("Delivery Distance:"..tonumber(dist/3.571).." meters away")
       print("Delivery ETA set to:"..tonumber(7).." seconds due to it being too low")
       if getfenv().methodt == "Teleport" then
-         task.wait(7)
+         task.wait(0.0001)
          elseif getfenv().methodt == "Tweening" then
             for i,v in pairs(game:GetService("Workspace").Cars:GetDescendants()) do
                if v.Name == "Owner" and v.Value == game.Players.LocalPlayer then
@@ -454,7 +454,7 @@ for i,v in pairs(game:GetService("Workspace").Cars:GetDescendants()) do
    if v.Name == "Owner" and v.Value == game.Players.LocalPlayer then
       v.Parent:PivotTo(getZone().PrimaryPart.CFrame*CFrame.new(0,5,60))
       v.Parent.Trailer:PivotTo(getZone().PrimaryPart.CFrame*CFrame.new(0,5,100))
-      wait(5)
+      wait(0.0001)
 repeat task.wait()
    pcall(function()
    v.Parent:PivotTo(getZone().PrimaryPart.CFrame*CFrame.new(0,5,-30))
@@ -469,7 +469,7 @@ until cash ~= game:GetService("ReplicatedStorage").PlayerData[plr.Name].Cash.Val
 print(tick()-time)
 if cash == game:GetService("ReplicatedStorage").PlayerData[plr.Name].Cash.Value then
    game:GetService("ReplicatedStorage").Systems.Jobs.QuitJob:InvokeServer()
-   wait(5)
+   wait(0.0001)
    end
 end
 end
